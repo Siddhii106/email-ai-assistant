@@ -19,6 +19,7 @@ def google_login(request):
         access_type="offline", prompt="consent", include_granted_scopes="true"
     )
     request.session["oauth_state"] = state
+    request.session["code_verifier"] = flow.code_verifier
     return redirect(auth_url)
 
 
@@ -29,6 +30,7 @@ def google_callback(request):
         return redirect(f"{settings.FRONTEND_URL}/login?error=state")
 
     flow = make_flow()
+    flow.code_verifier = request.session.pop("code_verifier", None)
     flow.fetch_token(authorization_response=request.build_absolute_uri())
     creds = flow.credentials
 
