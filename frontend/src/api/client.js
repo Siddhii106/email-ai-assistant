@@ -1,4 +1,6 @@
-const BASE = "/api";
+import { API_ORIGIN } from "../config";
+
+const BASE = `${API_ORIGIN}/api`;
 
 export const getTokens = () => JSON.parse(localStorage.getItem("tokens") || "null");
 export const saveTokens = (tokens) => localStorage.setItem("tokens", JSON.stringify(tokens));

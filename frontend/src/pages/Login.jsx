@@ -3,12 +3,14 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { API_ORIGIN } from "../config";
 
 export default function Login() {
   const { user, login } = useAuth();
   const { hash, search } = useLocation();
   const navigate = useNavigate();
 
+  // After Google sign-in, Django returns tokens in the URL fragment.
   useEffect(() => {
     const params = new URLSearchParams(hash.slice(1));
     const access = params.get("access");
@@ -35,7 +37,7 @@ export default function Login() {
           Your inbox, triaged and answered by AI. Summarize, prioritize, and reply without the noise.
         </p>
         <a
-          href={`${import.meta.env.VITE_API_URL}/api/auth/google/login/`}
+          href={`${API_ORIGIN}/api/auth/google/login/`}
           className="btn-primary mt-8 w-full py-3.5 text-[15px]"
         >
           Continue with Google
