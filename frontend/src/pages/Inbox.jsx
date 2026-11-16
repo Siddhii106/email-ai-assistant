@@ -15,18 +15,24 @@ export default function Inbox() {
   const [query, setQuery] = useState("");
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
   const [detail, setDetail] = useState(null);
   const [compose, setCompose] = useState(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
 
+  // Show failures in a banner instead of letting bad data crash the UI.
+  const run = (promise) => promise.catch((e) => setError(e.message));
+
   const load = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const data = await api(`/mail/messages/?label=${label}&q=${encodeURIComponent(query)}`);
-      setEmails(data.messages);
+      setEmails(data?.messages ?? []);
     } catch (e) {
-      console.error(e);
+      setEmails([]);
+      setError(e.message);
     } finally {
       setLoading(false);
     }
@@ -42,7 +48,7 @@ export default function Inbox() {
   useEffect(() => {
     setDetail(null);
     if (!selected) return;
-    api(`/mail/messages/${selected.id}/`).then(setDetail).catch(console.error);
+    run(api(`/mail/messages/${selected.id}/`).then((d) => setDetail(d)));
   }, [selected]);
 
   const patchLabels = (m, add = [], remove = []) =>
@@ -57,26 +63,32 @@ export default function Inbox() {
     if (!m) return;
     setSelected(m);
     if (m.unread) {
-      patchLabels(m, [], ["UNREAD"]);
-      setEmails((prev) => prev.map((e) => (e.id === m.id ? { ...e, unread: false } : e)));
+      run(
+        patchLabels(m, [], ["UNREAD"]).then(() =>
+          setEmails((prev) => prev.map((e) => (e.id === m.id ? { ...e, unread: false } : e)))
+        )
+      );
     }
   };
 
   const archive = (m) => {
-    patchLabels(m, [], ["INBOX"]);
     removeFromList(m.id);
+    run(patchLabels(m, [], ["INBOX"]));
   };
 
   const trash = (m) => {
-    patchLabels(m, ["TRASH"], ["INBOX"]);
     removeFromList(m.id);
+    run(patchLabels(m, ["TRASH"], ["INBOX"]));
   };
 
-  const toggleStar = async (m) => {
-    await patchLabels(m, m.starred ? [] : ["STARRED"], m.starred ? ["STARRED"] : []);
+  const toggleStar = (m) => {
     const starred = !m.starred;
-    setEmails((prev) => prev.map((e) => (e.id === m.id ? { ...e, starred } : e)));
-    setSelected((s) => (s?.id === m.id ? { ...s, starred } : s));
+    run(
+      patchLabels(m, starred ? ["STARRED"] : [], starred ? [] : ["STARRED"]).then(() => {
+        setEmails((prev) => prev.map((e) => (e.id === m.id ? { ...e, starred } : e)));
+        setSelected((s) => (s?.id === m.id ? { ...s, starred } : s));
+      })
+    );
   };
 
   const openReply = (body = "") =>
@@ -124,13 +136,26 @@ export default function Inbox() {
 
   return (
     <div className="flex h-screen overflow-hidden">
+      {error && (
+        <div className="fixed left-1/2 top-4 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border border-clay-200 bg-white px-5 py-2.5 text-sm text-clay-700 shadow-card">
+          <span>{error}</span>
+          <button onClick={() => setError("")} className="text-ink-subtle hover:text-ink" aria-label="Dismiss">
+            ×
+          </button>
+        </div>
+      )}
+
       <Sidebar
         label={label}
-        onLabel={(l) => { setLabel(l); setSelected(null); }}
+        onLabel={(l) => {
+          setLabel(l);
+          setSelected(null);
+        }}
         onCompose={() => setCompose({})}
         user={user}
         onLogout={logout}
       />
+
       <EmailList
         emails={emails}
         loading={loading}
@@ -141,6 +166,7 @@ export default function Inbox() {
         onStar={toggleStar}
         onArchive={archive}
       />
+
       <main className="flex min-w-0 flex-1">
         <EmailView
           email={selected}
@@ -151,15 +177,18 @@ export default function Inbox() {
           onTrash={trash}
         />
         <AnimatePresence>
-          {selected && (
-            <AIPanel key={selected.id} email={selected} detail={detail} onUseDraft={openReply} />
-          )}
+          {selected && <AIPanel key={selected.id} email={selected} detail={detail} onUseDraft={openReply} />}
         </AnimatePresence>
       </main>
 
       <AnimatePresence>
         {compose && (
-          <ComposeModal key="compose" initial={compose} onClose={() => setCompose(null)} onSent={load} />
+          <ComposeModal
+            key="compose"
+            initial={compose}
+            onClose={() => setCompose(null)}
+            onSent={load}
+          />
         )}
         {paletteOpen && (
           <CommandPalette key="palette" actions={actions} onClose={() => setPaletteOpen(false)} />
