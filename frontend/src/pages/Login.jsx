@@ -40,10 +40,10 @@ export default function Login() {
           Your inbox, triaged and answered by AI. Summarize, prioritize, and reply without the noise.
         </p>
         <a
-          href="/api/auth/google/login/"
+          href="http://localhost:8000/api/auth/google/login/"
           className="mt-8 flex items-center justify-center gap-3 rounded-2xl bg-white py-3 font-medium text-slate-900 transition hover:scale-[1.02]"
         >
-          Continue with Google
+        Continue with Google
         </a>
         {search.includes("error") && (
           <p className="mt-4 text-sm text-rose-400">Sign-in failed. Please try again.</p>
