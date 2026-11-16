@@ -1,6 +1,9 @@
 from django.conf import settings
 from google_auth_oauthlib.flow import Flow
 
+import os
+os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
+
 
 def make_flow() -> Flow:
     return Flow.from_client_config(
