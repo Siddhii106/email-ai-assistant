@@ -38,30 +38,30 @@ export default function ComposeModal({ initial, onClose, onSent }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="fixed inset-0 z-40 grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-40 grid place-items-center bg-olive-900/40 p-4 backdrop-blur-sm"
     >
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="glass w-full max-w-2xl rounded-3xl p-6 shadow-2xl"
+        className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl"
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold">{initial.threadId ? "Reply" : "New message"}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-olive-900">{initial.threadId ? "Reply" : "New message"}</h2>
+          <button onClick={onClose} className="text-ink-subtle transition hover:text-ink">
             <X size={18} />
           </button>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {fields.map(([label, value, set]) => (
             <input
               key={label}
               value={value}
               onChange={(e) => set(e.target.value)}
               placeholder={label}
-              className="w-full rounded-xl bg-white/5 px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-violet-500"
+              className="input"
             />
           ))}
           <textarea
@@ -69,18 +69,14 @@ export default function ComposeModal({ initial, onClose, onSent }) {
             onChange={(e) => setBody(e.target.value)}
             rows={12}
             placeholder="Write something brilliant…"
-            className="w-full resize-none rounded-xl bg-white/5 p-3 text-sm outline-none ring-1 ring-white/10 focus:ring-violet-500"
+            className="input resize-none leading-relaxed"
           />
         </div>
 
-        {error && <p className="mt-2 text-xs text-rose-400">{error}</p>}
+        {error && <p className="mt-3 text-xs text-clay-700">{error}</p>}
 
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={send}
-            disabled={sending || !to}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-sky-500 px-5 py-2.5 text-sm font-medium disabled:opacity-50"
-          >
+        <div className="mt-5 flex justify-end">
+          <button onClick={send} disabled={sending || !to} className="btn-primary px-6">
             {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
             Send
           </button>

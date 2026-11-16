@@ -5,24 +5,24 @@ const displayName = (from) => from.replace(/<.*>/, "").replace(/"/g, "").trim() 
 
 export default function EmailList({ emails, loading, selectedId, onSelect, query, onQuery, onStar, onArchive }) {
   return (
-    <section className="flex w-96 flex-col border-r border-white/10">
+    <section className="flex w-96 flex-col border-r border-line bg-cream">
       <div className="p-4">
-        <div className="glass flex items-center gap-2 rounded-2xl px-3 py-2">
-          <Search size={16} className="text-slate-400" />
+        <div className="flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2.5 shadow-sm focus-within:border-olive-500 focus-within:ring-2 focus-within:ring-olive-100">
+          <Search size={16} className="text-ink-subtle" />
           <input
             id="search"
             value={query}
             onChange={(e) => onQuery(e.target.value)}
             placeholder="Search mail   ( / )"
-            className="w-full bg-transparent text-sm outline-none placeholder:text-slate-500"
+            className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-subtle"
           />
         </div>
       </div>
 
-      <div className="scrollbar-thin flex-1 space-y-1 overflow-y-auto px-2 pb-4">
+      <div className="scrollbar-thin flex-1 space-y-2 overflow-y-auto px-3 pb-4">
         {loading &&
           Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="m-2 h-20 animate-pulse rounded-2xl bg-white/5" />
+            <div key={i} className="h-20 animate-pulse rounded-2xl bg-olive-100/60" />
           ))}
 
         <AnimatePresence initial={false}>
@@ -35,34 +35,36 @@ export default function EmailList({ emails, loading, selectedId, onSelect, query
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -40 }}
                 onClick={() => onSelect(m)}
-                className={`group relative cursor-pointer rounded-2xl p-3 transition ${
-                  selectedId === m.id ? "bg-white/10 ring-1 ring-violet-500/50" : "hover:bg-white/5"
+                className={`group relative cursor-pointer rounded-2xl border p-3.5 transition ${
+                  selectedId === m.id
+                    ? "border-olive-300 bg-white shadow-card"
+                    : "border-transparent hover:border-line hover:bg-white"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  {m.unread && <span className="h-2 w-2 rounded-full bg-sky-400" />}
-                  <span className={`truncate text-sm ${m.unread ? "font-semibold text-white" : "text-slate-300"}`}>
+                  {m.unread && <span className="h-2 w-2 rounded-full bg-clay-500" />}
+                  <span className={`truncate text-sm ${m.unread ? "font-semibold text-ink" : "text-ink-muted"}`}>
                     {displayName(m.from)}
                   </span>
-                  <span className="ml-auto text-xs text-slate-500">
+                  <span className="ml-auto shrink-0 text-xs text-ink-subtle">
                     {new Date(m.date).toLocaleDateString([], { month: "short", day: "numeric" })}
                   </span>
                 </div>
-                <div className={`mt-1 truncate text-sm ${m.unread ? "text-slate-100" : "text-slate-400"}`}>
+                <div className={`mt-1 truncate text-sm ${m.unread ? "text-ink" : "text-ink-muted"}`}>
                   {m.subject || "(no subject)"}
                 </div>
-                <div className="truncate text-xs text-slate-500">{m.snippet}</div>
+                <div className="truncate text-xs text-ink-subtle">{m.snippet}</div>
 
-                <div className="absolute right-2 bottom-2 hidden gap-1 group-hover:flex">
+                <div className="absolute bottom-3 right-3 hidden gap-1 group-hover:flex">
                   <button
                     onClick={(e) => { e.stopPropagation(); onStar(m); }}
-                    className="rounded-lg bg-black/50 p-1.5 hover:text-amber-300"
+                    className="rounded-full bg-cream p-1.5 text-ink-subtle transition hover:text-clay-600"
                   >
-                    <Star size={14} className={m.starred ? "fill-amber-300 text-amber-300" : ""} />
+                    <Star size={14} className={m.starred ? "fill-clay-500 text-clay-500" : ""} />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); onArchive(m); }}
-                    className="rounded-lg bg-black/50 p-1.5 hover:text-sky-300"
+                    className="rounded-full bg-cream p-1.5 text-ink-subtle transition hover:text-olive-700"
                   >
                     <Archive size={14} />
                   </button>
@@ -72,7 +74,7 @@ export default function EmailList({ emails, loading, selectedId, onSelect, query
         </AnimatePresence>
 
         {!loading && emails.length === 0 && (
-          <p className="p-6 text-center text-sm text-slate-500">Nothing here. Inbox zero ✨</p>
+          <p className="p-6 text-center text-sm text-ink-subtle">Nothing here. Inbox zero ✨</p>
         )}
       </div>
     </section>
