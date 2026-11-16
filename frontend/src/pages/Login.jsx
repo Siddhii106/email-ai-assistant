@@ -34,7 +34,10 @@ export default function Login() {
         <p className="mt-3 leading-relaxed text-ink-muted">
           Your inbox, triaged and answered by AI. Summarize, prioritize, and reply without the noise.
         </p>
-        <a href="http://localhost:8000/api/auth/google/login/" className="btn-primary mt-8 w-full py-3.5 text-[15px]">
+        <a
+          href={`${import.meta.env.VITE_API_URL}/api/auth/google/login/`}
+          className="btn-primary mt-8 w-full py-3.5 text-[15px]"
+        >
           Continue with Google
         </a>
         {search.includes("error") && (
